@@ -62,4 +62,9 @@ npm start
 ```
 
 展示图：
+![Home](https://github.com/bigboysuper6/cloud-music-react/blob/main/preview/Home.png)
+![Home](https://github.com/bigboysuper6/cloud-music-react/blob/main/preview/Login.png)
+![Home](https://github.com/bigboysuper6/cloud-music-react/blob/main/preview/MusicList.png)
+![Home](https://github.com/bigboysuper6/cloud-music-react/blob/main/preview/PlayList.png)
+
 
