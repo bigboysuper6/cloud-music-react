@@ -1,13 +1,15 @@
 import styled from "@emotion/styled";
 import { Typography } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
-import { Favorite, Layers } from "@mui/icons-material";
-import { Link } from "@mui/material";
+import { Favorite } from "@mui/icons-material";
+import { Link, Box } from "@mui/material";
 import * as React from "react";
-import { display } from "@mui/system";
-import Box from "@mui/material/Box";
 import PauseRounded from "@mui/icons-material/PauseRounded";
 import PlayArrowRounded from "@mui/icons-material/PlayArrowRounded";
+import LoopIcon from "@mui/icons-material/Loop";
+import ShuffleIcon from "@mui/icons-material/Shuffle";
+import RepeatOneIcon from "@mui/icons-material/RepeatOne";
+import PlaylistPlayIcon from "@mui/icons-material/PlaylistPlay";
 import FastForwardRounded from "@mui/icons-material/FastForwardRounded";
 import FastRewindRounded from "@mui/icons-material/FastRewindRounded";
 import { styled as styled_M, useTheme } from "@mui/material/styles";
@@ -18,16 +20,12 @@ import { Slider } from "@mui/material";
 import KeyboardControlKeyIcon from "@mui/icons-material/KeyboardControlKey";
 import QueueMusicIcon from "@mui/icons-material/QueueMusic";
 import { useSelector, useDispatch } from "react-redux";
-import { useSlider } from "@mui/base";
-import store from "../app/store";
 import limitSize from "../utils/limitSize";
-import {
-    setPlayMusic,
-    setMusicStatus,
-    setMusicIndex,
-    setPlay,
-} from "../app/Slices/music";
+import playMethod from "../utils/playMethod";
+import { setPlayMusic, setMusicIndex } from "../app/Slices/music";
 import { songUrl } from "../api/base";
+import PlayListMenu from "./PlayListMenu";
+
 const Container = styled.div`
     bottom: 0;
     position: fixed;
@@ -38,14 +36,14 @@ const Container = styled.div`
     border-radius: 0.625rem 0.625rem 0 0;
     display: flex;
     justify-content: space-between;
-    background-color: rgba(45, 45, 45, 0.95);
+    background-color: rgb(45, 45, 45);
+    z-index: 1;
 `;
 
 const ContainerLeft = styled.div`
     width: 30%;
     display: flex;
     align-items: center;
-
     border-radius: 0.625rem;
 `;
 
@@ -88,6 +86,13 @@ const MusicName = styled.p`
     text-overflow: ellipsis;
 `;
 
+const playMethodList = [
+    { name: "loop", icon: <LoopIcon /> },
+    { name: "repeat", icon: <RepeatOneIcon /> },
+    { name: "shuffle", icon: <ShuffleIcon /> },
+    { name: "playlist", icon: <PlaylistPlayIcon /> },
+];
+
 const Bar = (props) => {
     const playMusic = useSelector((state) => state.music.value.playMusic);
     const playList = useSelector((state) => state.music.value.playList);
@@ -97,23 +102,20 @@ const Bar = (props) => {
     const duration = 200; // seconds
     const [position, setPosition] = React.useState(32);
     const [musicUrl, setMusicUrl] = React.useState("");
+    const [playMethodIndex, setPlayMethodIndex] = React.useState(0);
     const [musicData, setMusicData] = React.useState();
+    const [status, setStatus] = React.useState();
+    const [playedList, setPlayedList] = React.useState([]);
+    const [showState, setShowState] = React.useState(false);
 
+    React.useEffect(() => {
+        if (showState) document.body.style.overflow = "hidden";
+        else document.body.style.overflow = "scroll";
+    }, [showState]);
     React.useEffect(() => {
         getPlayMusic();
+        setStatus(true);
     }, [playMusic]);
-
-    React.useEffect(() => {
-        console.log("status:", playMusic.status);
-        if (playMusic) {
-            if (playMusic["status"]) audio.current.play();
-            else audio.current.pause();
-        }
-    }, [getPlayMusic, playMusic]);
-
-    React.useEffect(() => {
-        console.log("playList", playList);
-    }, [playList]);
 
     async function getPlayMusic() {
         if (playMusic)
@@ -121,6 +123,7 @@ const Bar = (props) => {
                 console.log("playMusic", playMusic);
                 const { data: musicData } = await songUrl({
                     id: playMusic.payload.id,
+                    level: "exhigh",
                 });
                 console.log("musicData", musicData.data);
                 console.log("musicData Url", musicData.data[0].url);
@@ -157,36 +160,55 @@ const Bar = (props) => {
 
     function getPlayList() {
         console.log("播放列表Bar:", playList);
+        setShowState((showState) => {
+            return !showState;
+        });
     }
 
     function handleLastMusic() {
-        console.log(playMusic);
         let index = playMusic.index.payload;
-        if (index !== 0) {
-            console.log("当前音乐索引", index.payload);
-            index -= 1;
-            console.log("当前播放列表", playList.payload.payload);
-            const music = playList.payload.payload[index];
-            const MusicData = {
-                picUrl: music.al.picUrl,
-                id: music.id,
-                auth: music.ar,
-                name: music.name,
-            };
-            console.log("前一个音乐", MusicData);
-            dispatch(setPlayMusic(MusicData));
-            dispatch(setPlay());
-            dispatch(setMusicIndex(index));
-        }
+        let thePlayList = playList.payload.payload;
+        let playMethodName = playMethodList[playMethodIndex].name;
+        console.log("当前音乐索引", index.payload);
+        let { result: nextIndex, playedIndex } = playMethod[
+            playMethodName.includes("shuffle") ? "shuffleUp" : "Up"
+        ](index, thePlayList.length, playedList);
+        console.log("当前播放列表", playList.payload.payload);
+        if (playedIndex !== undefined) setPlayedList(playedIndex);
+        const music = playList.payload.payload[nextIndex];
+        const MusicData = {
+            picUrl: music.al.picUrl,
+            id: music.id,
+            auth: music.ar,
+            name: music.name,
+        };
+        console.log("前一个音乐", MusicData);
+        dispatch(setPlayMusic(MusicData));
+        dispatch(setMusicIndex(nextIndex));
     }
-    function handleNextMusic() {
+    function handleNextMusic(click) {
         console.log(playMusic);
         let index = playMusic.index.payload;
-        if (index !== playList.length - 1) {
+        let thePlayList = playList.payload.payload;
+        let playMethodName = playMethodList[playMethodIndex].name;
+        if (!click && playMethodName === "repeat") {
+            audio.current.play();
+            setStatus(true);
+        } else if (
+            !click &&
+            playMethodName === "playlist" &&
+            index === thePlayList.length - 1
+        ) {
+            setStatus(false);
+        } else {
+            console.log("1234yes");
             console.log("当前音乐索引", index);
-            index += 1;
-            console.log("当前播放列表", playList.payload.payload);
-            const music = playList.payload.payload[index];
+            let { result: nextIndex, playedIndex } = playMethod[
+                playMethodName.includes("shuffle") ? "shuffleDown" : "Down"
+            ](index, thePlayList.length, playedList);
+            if (playedIndex !== undefined) setPlayedList(playedIndex);
+            console.log("当前播放列表", thePlayList);
+            const music = thePlayList[nextIndex];
             const MusicData = {
                 picUrl: music.al.picUrl,
                 id: music.id,
@@ -195,157 +217,194 @@ const Bar = (props) => {
             };
             console.log("前一个音乐", MusicData);
             dispatch(setPlayMusic(MusicData));
-            dispatch(setPlay());
-            dispatch(setMusicIndex(index));
+            dispatch(setMusicIndex(nextIndex));
         }
     }
 
+    function handlePlayMethod(index) {
+        let newIndex = index === playMethodList.length - 1 ? 0 : index + 1;
+        if (newIndex === 2) {
+            let playMusicIndex = playMusic.index.payload;
+            let newPlayedList = [];
+            newPlayedList.push(playMusicIndex);
+            setPlayedList(newPlayedList);
+        }
+        console.log(index, newIndex);
+        setPlayMethodIndex(newIndex);
+    }
+
+    function handleVolume(event, value) {
+        audio.current.volume = value / 100;
+        console.log("音量:", event.target.value, value, audio.current.volume);
+    }
+
+    function handlePlayMusic() {
+        if (!status) {
+            audio.current.play();
+            setStatus(true);
+        } else {
+            audio.current.pause();
+            setStatus(false);
+        }
+    }
     return (
-        <React.Fragment>
+        <>
             {playMusic && (
-                <Container>
-                    <audio
-                        src={musicUrl}
-                        onEnded={handleNextMusic}
-                        ref={audio}
-                    ></audio>
-                    <ContainerLeft>
-                        <ImageMusic
-                            src={limitSize(playMusic.payload.picUrl, {
-                                param: "50y50",
-                            })}
-                        />
-                        <MusicInformation>
-                            <MusicName>{playMusic.payload.name}</MusicName>
-                            <Typography
-                                sx={{
-                                    padding: 0,
-                                    margin: "0.187rem 0 0 0 ",
-                                    fontSize: "0.75rem",
-                                    lineHeight: "1rem",
-                                    color: "rgb(180,180,180)",
-                                }}
-                            >
-                                {playMusic.payload.auth.map((item, index) =>
-                                    index ===
-                                    playMusic.payload.auth.length - 1 ? (
-                                        <Link key={index}>{item.name}</Link>
-                                    ) : (
-                                        <span key={index}>
-                                            <Link>{item.name}</Link>
-                                            <span
-                                                style={{
-                                                    color: "rgb(25,115,205)",
-                                                    margin: "3px",
-                                                    fontWeight: "bold",
-                                                }}
-                                            >
-                                                ,
-                                            </span>
-                                        </span>
-                                    )
-                                )}
-                            </Typography>
-                        </MusicInformation>
-                    </ContainerLeft>
-                    <ContainerMid>
-                        <Box
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                mt: -1,
-                                margin: 0,
-                            }}
-                        >
-                            <IconButton
-                                aria-label="previous song"
-                                onClick={handleLastMusic}
-                            >
-                                <FastRewindRounded
-                                    fontSize="large"
-                                    htmlColor={mainIconColor}
-                                />
-                            </IconButton>
-                            <IconButton
-                                aria-label={playMusic.status ? "play" : "pause"}
-                                onClick={() => {
-                                    dispatch(setMusicStatus());
-                                }}
-                            >
-                                {!playMusic.status ? (
-                                    <PlayArrowRounded
-                                        sx={{ fontSize: "3rem" }}
-                                        htmlColor={mainIconColor}
-                                    />
-                                ) : (
-                                    <PauseRounded
-                                        sx={{ fontSize: "3rem" }}
-                                        htmlColor={mainIconColor}
-                                    />
-                                )}
-                            </IconButton>
-                            <IconButton
-                                aria-label="next song"
-                                onClick={handleNextMusic}
-                            >
-                                <FastForwardRounded
-                                    fontSize="large"
-                                    htmlColor={mainIconColor}
-                                />
-                            </IconButton>
-                        </Box>
-                    </ContainerMid>
-                    <ContainerEnd>
-                        <IconButton color="secondary" aria-label="add an alarm">
-                            <Favorite />
-                        </IconButton>
-                        <IconButton onClick={getPlayList}>
-                            <QueueMusicIcon />
-                        </IconButton>
-                        <Stack
-                            spacing={2}
-                            direction="row"
-                            sx={{ mb: 1, px: 1, margin: "0" }}
-                            alignItems="center"
-                        >
-                            <VolumeDownRounded htmlColor={lightIconColor} />
-                            <Slider
-                                aria-label="Volume"
-                                defaultValue={30}
-                                sx={{
-                                    width: "70px",
-                                    color:
-                                        theme.palette.mode === "dark"
-                                            ? "#fff"
-                                            : "rgba(0,0,0,0.87)",
-                                    "& .MuiSlider-track": {
-                                        border: "none",
-                                    },
-                                    "& .MuiSlider-thumb": {
-                                        width: 10,
-                                        height: 10,
-                                        backgroundColor: "#fff",
-                                        "&:before": {
-                                            boxShadow:
-                                                "0 4px 8px rgba(0,0,0,0.4)",
-                                        },
-                                        "&:hover, &.Mui-focusVisible, &.Mui-active":
-                                            {
-                                                boxShadow: "none",
-                                            },
-                                    },
-                                }}
+                <div>
+                    <Container>
+                        <audio
+                            src={musicUrl}
+                            onEnded={() => handleNextMusic(false)}
+                            ref={audio}
+                            autoPlay
+                        ></audio>
+                        <ContainerLeft>
+                            <ImageMusic
+                                src={limitSize(playMusic.payload.picUrl, {
+                                    param: "50y50",
+                                })}
                             />
-                            <VolumeUpRounded htmlColor={lightIconColor} />
-                        </Stack>
-                        <IconButton>
-                            <KeyboardControlKeyIcon />
-                        </IconButton>
-                    </ContainerEnd>
-                </Container>
+                            <MusicInformation>
+                                <MusicName>{playMusic.payload.name}</MusicName>
+                                <Typography
+                                    sx={{
+                                        padding: 0,
+                                        margin: "0.187rem 0 0 0 ",
+                                        fontSize: "0.75rem",
+                                        lineHeight: "1rem",
+                                        color: "rgb(180,180,180)",
+                                    }}
+                                >
+                                    {playMusic.payload.auth.map((item, index) =>
+                                        index ===
+                                        playMusic.payload.auth.length - 1 ? (
+                                            <Link key={index}>{item.name}</Link>
+                                        ) : (
+                                            <span key={index}>
+                                                <Link>{item.name}</Link>
+                                                <span
+                                                    style={{
+                                                        color: "rgb(25,115,205)",
+                                                        margin: "3px",
+                                                        fontWeight: "bold",
+                                                    }}
+                                                >
+                                                    ,
+                                                </span>
+                                            </span>
+                                        )
+                                    )}
+                                </Typography>
+                            </MusicInformation>
+                        </ContainerLeft>
+                        <ContainerMid>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    mt: -1,
+                                    margin: 0,
+                                }}
+                            >
+                                <IconButton
+                                    aria-label="previous song"
+                                    onClick={handleLastMusic}
+                                >
+                                    <FastRewindRounded
+                                        fontSize="large"
+                                        htmlColor={mainIconColor}
+                                    />
+                                </IconButton>
+                                <IconButton onClick={handlePlayMusic}>
+                                    {!status ? (
+                                        <PlayArrowRounded
+                                            sx={{ fontSize: "3rem" }}
+                                            htmlColor={mainIconColor}
+                                        />
+                                    ) : (
+                                        <PauseRounded
+                                            sx={{ fontSize: "3rem" }}
+                                            htmlColor={mainIconColor}
+                                        />
+                                    )}
+                                </IconButton>
+                                <IconButton
+                                    aria-label="next song"
+                                    onClick={() => handleNextMusic(true)}
+                                >
+                                    <FastForwardRounded
+                                        fontSize="large"
+                                        htmlColor={mainIconColor}
+                                    />
+                                </IconButton>
+                            </Box>
+                        </ContainerMid>
+                        <ContainerEnd>
+                            <IconButton
+                                color="secondary"
+                                aria-label="add an alarm"
+                            >
+                                <Favorite />
+                            </IconButton>
+                            <IconButton
+                                onClick={() =>
+                                    handlePlayMethod(playMethodIndex)
+                                }
+                            >
+                                {playMethodList[playMethodIndex].icon}
+                            </IconButton>
+                            <IconButton onClick={getPlayList}>
+                                <QueueMusicIcon />
+                            </IconButton>
+                            <Stack
+                                spacing={2}
+                                direction="row"
+                                sx={{ mb: 1, px: 1, margin: "0" }}
+                                alignItems="center"
+                            >
+                                <VolumeDownRounded htmlColor={lightIconColor} />
+                                <Slider
+                                    onChange={(event, value) =>
+                                        handleVolume(event, value)
+                                    }
+                                    aria-label="Volume"
+                                    defaultValue={20}
+                                    sx={{
+                                        width: "70px",
+                                        color:
+                                            theme.palette.mode === "dark"
+                                                ? "#fff"
+                                                : "rgba(0,0,0,0.87)",
+                                        "& .MuiSlider-track": {
+                                            border: "none",
+                                        },
+                                        "& .MuiSlider-thumb": {
+                                            width: 10,
+                                            height: 10,
+                                            backgroundColor: "#fff",
+                                            "&:before": {
+                                                boxShadow:
+                                                    "0 4px 8px rgba(0,0,0,0.4)",
+                                            },
+                                            "&:hover, &.Mui-focusVisible, &.Mui-active":
+                                                {
+                                                    boxShadow: "none",
+                                                },
+                                        },
+                                    }}
+                                />
+                                <VolumeUpRounded htmlColor={lightIconColor} />
+                            </Stack>
+                            <IconButton>
+                                <KeyboardControlKeyIcon />
+                            </IconButton>
+                        </ContainerEnd>
+                    </Container>
+                    <PlayListMenu showState={showState} />
+                </div>
             )}
-        </React.Fragment>
+        </>
     );
 };
 

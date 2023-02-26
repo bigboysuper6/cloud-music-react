@@ -1,31 +1,39 @@
 import styled from "@emotion/styled";
 import { Typography } from "@mui/material";
 import { IconButton } from "@mui/material";
-import { Favorite, Layers } from "@mui/icons-material";
+import { ContactSupportOutlined, Favorite, Layers } from "@mui/icons-material";
 import { Link } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import {
     setPlayMusic,
     setMusicIndex,
     setPlayList,
-    setPlay,
-} from "../../../../../app/Slices/music/index";
-import store from "../../../../../app/store";
-import limitSize from "../../../../../utils/limitSize";
+} from "../../app/Slices/music/index";
+import store from "../../app/store";
+import limitSize from "../../utils/limitSize";
+import hiddenText from "../../utils/hiddenText";
+import { useState } from "react";
+import { useEffect } from "react";
 
 const Container = styled.div`
-    min-height: 80px;
-    width: 976px;
+    width: inherit;
     border-radius: 0.625rem;
+    min-height: ${(props) => {
+        console.log("hiddenImage", props.hiddenImage);
+        return props.hiddenImage ? "50px" : "80px";
+    }};
     display: flex;
     justify-content: space-between;
     &:hover {
         background-color: rgb(60, 60, 60);
     }
+    background-color: ${(props) => {
+        return props.select ? "rgb(60, 60, 60)" : "";
+    }};
 `;
 
 const ContainerLeft = styled.div`
-    width: 30%;
+    width: 15%;
     display: flex;
     align-items: center;
     border-radius: 0.625rem;
@@ -39,7 +47,9 @@ const ImageMusic = styled.img`
 `;
 
 const MusicInformation = styled.div`
-    margin: 0;
+    margin: ${(props) => {
+        return props.hiddenImage ? "0 0 0 1rem" : "0";
+    }};
 `;
 
 const ContainerMid = styled.div`
@@ -50,7 +60,6 @@ const ContainerMid = styled.div`
 `;
 
 const ContainerEnd = styled.div`
-    width: 10%;
     display: flex;
     align-items: center;
     justify-content: end;
@@ -58,7 +67,20 @@ const ContainerEnd = styled.div`
 
 const MusicList = (props) => {
     const songlist = useSelector((state) => state.music.value.musicList);
+    const thePlayMusic = useSelector((state) => state.music.value.playMusic);
+
+    // change playmusic background
+    const [selectMusic, setSelectMusic] = useState(false);
+    useEffect(() => {
+        if (thePlayMusic?.payload?.id === props.songslist.id) {
+            setSelectMusic(true);
+        } else {
+            setSelectMusic(false);
+        }
+    }, [thePlayMusic?.payload?.id, props.songslist.id]);
+
     const dispatch = useDispatch();
+    const hiddenImage = props.hiddenImage === true;
     const timeChange = () => {
         let time = props.songslist.dt;
         let minutes = parseInt(time / (60 * 1000));
@@ -72,7 +94,6 @@ const MusicList = (props) => {
         let time_ms = minutes + ":" + seconds;
         return time_ms;
     };
-
     function playMusic() {
         const MusicData = {
             picUrl: props.songslist.al.picUrl,
@@ -80,43 +101,55 @@ const MusicList = (props) => {
             auth: props.songslist.ar,
             name: props.songslist.name,
         };
+        const index = songlist.payload.indexOf(props.songslist);
         dispatch(setPlayMusic(MusicData));
-        dispatch(setPlay());
         dispatch(setPlayList(songlist));
-        dispatch(setMusicIndex(props.index));
+        dispatch(setMusicIndex(index));
     }
 
     return (
-        <Container onDoubleClick={playMusic}>
+        <Container
+            select={selectMusic}
+            hiddenImage={hiddenImage}
+            onDoubleClick={playMusic}
+        >
             <ContainerLeft>
-                <ImageMusic
-                    src={limitSize(props.songslist.al.picUrl, {
-                        param: "50y50",
-                    })}
-                />
-                <MusicInformation>
+                {!hiddenImage && (
+                    <ImageMusic
+                        src={limitSize(props.songslist.al.picUrl, {
+                            param: "50y50",
+                        })}
+                    />
+                )}
+                <MusicInformation hiddenImage={hiddenImage}>
                     <Typography
                         gutterBottom
-                        sx={{
-                            padding: 0,
-                            margin: 0,
-                            fontSize: "1rem",
-                            fontWeight: "bold",
-                            lineHeight: "1rem",
-                            color: "rgb(180,180,180)",
-                        }}
+                        sx={Object.assign(
+                            {
+                                padding: 0,
+                                margin: 0,
+                                fontSize: "1rem",
+                                fontWeight: "bold",
+                                lineHeight: "1rem",
+                                color: "rgb(180,180,180)",
+                            },
+                            hiddenText(1)
+                        )}
                         component="div"
                     >
                         {props.songslist.name}
                     </Typography>
                     <Typography
-                        sx={{
-                            padding: 0,
-                            margin: "0.187rem 0 0 0 ",
-                            fontSize: "0.75rem",
-                            lineHeight: "1rem",
-                            color: "rgb(180,180,180)",
-                        }}
+                        sx={Object.assign(
+                            {
+                                padding: 0,
+                                margin: "0.187rem 0 0 0 ",
+                                fontSize: "0.75rem",
+                                lineHeight: "1rem",
+                                color: "rgb(180,180,180)",
+                            },
+                            hiddenText(1)
+                        )}
                     >
                         {props.songslist.ar.map((item, index) =>
                             index === props.songslist.ar.length - 1 ? (
@@ -156,9 +189,11 @@ const MusicList = (props) => {
                 </Typography>
             </ContainerMid>
             <ContainerEnd>
-                <IconButton color="secondary" aria-label="add an alarm">
-                    <Favorite></Favorite>
-                </IconButton>
+                {!hiddenImage && (
+                    <IconButton color="secondary" aria-label="add an alarm">
+                        <Favorite></Favorite>
+                    </IconButton>
+                )}
                 <Typography
                     gutterBottom
                     sx={{

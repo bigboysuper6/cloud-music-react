@@ -11,7 +11,7 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import Dialogs from "./common/Dialogs";
+import Dialogs from "../components/Dialogs";
 import request from "../utils/request";
 import { useSelector, useDispatch } from "react-redux";
 import { changeStatus } from "../app/Slices/auth";
@@ -20,8 +20,6 @@ import { Link as LinkRouter } from "react-router-dom";
 import { loginStatus } from "../api/login";
 import { userDetail } from "../api/user";
 import { recommendSongs } from "../api/recommend";
-import limitSize from "../utils/limitSize";
-
 const pages = ["发现音乐"];
 const settings = new Array();
 const settingsFunc = new Array();
@@ -113,7 +111,7 @@ const Nav = () => {
     }
 
     return (
-        <Box zIndex="10" width="inherit">
+        <Box zIndex="10" width="976px" margin="auto">
             <AppBar
                 sx={{
                     height: "50px",
@@ -245,12 +243,7 @@ const Nav = () => {
                                     onClick={handleOpenUserMenu}
                                     sx={{ p: 0 }}
                                 >
-                                    <Avatar
-                                        alt="Remy Sharp"
-                                        src={limitSize(avatar, {
-                                            param: "40y40",
-                                        })}
-                                    />
+                                    <Avatar alt="Remy Sharp" src={avatar} />
                                 </IconButton>
                             </Tooltip>
                             <Menu

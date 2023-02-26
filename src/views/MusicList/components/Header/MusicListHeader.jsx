@@ -10,10 +10,18 @@ import Dialogs from "./components/Dialogs";
 import { useSelector } from "react-redux";
 import { playlistDetail } from "../../../../api/palylist";
 import limitSize from "../../../../utils/limitSize";
+import {
+    setPlayMusic,
+    setMusicIndex,
+    setPlayList,
+} from "../../../../app/Slices/music/index";
+import { useDispatch } from "react-redux";
 
 function MusicListHeader(props) {
+    const dispatch = useDispatch();
     const location = useLocation();
     const daySongsState = useSelector((state) => state.recommendSongs.value);
+    const songlist = useSelector((state) => state.music.value.musicList);
     console.log("location.pathname", location.pathname);
     const [playListDetail, setPlayListDetail] = useState({});
     const [authname, setAuthname] = useState("");
@@ -72,6 +80,19 @@ function MusicListHeader(props) {
         width: 620px;
         height: 240px;
     `;
+    const handlePlay = () => {
+        console.log("songlist:", songlist);
+        let list = songlist.payload;
+        const MusicData = {
+            picUrl: list[0].al.picUrl,
+            id: list[0].id,
+            auth: list[0].ar,
+            name: list[0].name,
+        };
+        dispatch(setPlayMusic(MusicData));
+        dispatch(setPlayList(songlist));
+        dispatch(setMusicIndex(0));
+    };
     return (
         <div>
             <HeaderFlex>
@@ -139,6 +160,7 @@ function MusicListHeader(props) {
                         }}
                         variant="contained"
                         startIcon={<PlayArrowSharpIcon />}
+                        onClick={handlePlay}
                     >
                         播放
                     </Button>
