@@ -10,14 +10,14 @@ import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/material";
 import { Link } from "@mui/material";
-import MusicLogo from "../../assets/logo.jpg";
+import MusicLogo from "../assets/logo.jpg";
 import { default as styledCommon } from "@emotion/styled";
 import {
     loginQrCreate,
     loginQrCheck,
     loginQrKey,
     loginStatus,
-} from "../../api/login";
+} from "../api/login";
 
 const BootstrapDialog = styled(Dialog)({
     "& .MuiPaper-root": {

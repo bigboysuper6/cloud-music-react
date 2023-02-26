@@ -1,15 +1,28 @@
 import axios from "axios";
 
 class requestService {
+    cookie = localStorage.getItem("cookie");
+
     service = axios.create({
         baseURL: process.env.REACT_APP_BASE_API,
         timeout: 5000,
     });
 
-    cookie = localStorage.getItem("cookie");
     constructor() {
+        this.service.interceptors.request.use(
+            function (config) {
+                // 在发送请求之前做些什么
+                console.log("config", config);
+                return config;
+            },
+            function (error) {
+                // 对请求错误做些什么
+                return Promise.reject(error);
+            }
+        );
         this.service.interceptors.response.use(
             function (respones) {
+                console.log("respones", respones);
                 return respones;
             },
             function (error) {

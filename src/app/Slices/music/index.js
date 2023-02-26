@@ -29,14 +29,8 @@ export const music = createSlice({
                 state.value.playMusic[key] = music[key];
             }
         },
-        setMusicStatus: (state) => {
-            state.value.playMusic["status"] = !state.value.playMusic["status"];
-        },
         setMusicIndex: (state, index) => {
             state.value.playMusic["index"] = index;
-        },
-        setPlay: (state) => {
-            state.value.playMusic["status"] = true;
         },
     },
 });
@@ -45,9 +39,7 @@ export const music = createSlice({
 export const {
     setMusicList: setMusicListRedux,
     setPlayList,
-    setPlay,
     setMusicIndex,
-    setMusicStatus,
     setPlayMusic,
     setShowList,
 } = music.actions;

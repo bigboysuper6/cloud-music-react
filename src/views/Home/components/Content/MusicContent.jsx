@@ -49,6 +49,7 @@ const MusicContent = (props) => {
                 display: "flex",
                 flexWrap: "wrap",
                 justifyContent: "space-between",
+                marginBottom: "5rem",
             }}
         >
             {getDayRcmCard()}

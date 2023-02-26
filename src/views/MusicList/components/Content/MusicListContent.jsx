@@ -1,5 +1,5 @@
 import React from "react";
-import MusicList from "./components/MusicList";
+import MusicList from "../../../../components/common/MusicList";
 import { playlistTrackAll } from "../../../../api/palylist";
 import { Box } from "@mui/material";
 import { matchPath, useLocation } from "react-router-dom";
@@ -50,7 +50,7 @@ const MusicListContent = (props) => {
     }
 
     return (
-        <Box>
+        <Box marginBottom={"6rem"}>
             {location.pathname === "/daysongs" && daySongsState && (
                 <Box>
                     {daySongsState.payload.dailySongs.map((item, index) => (
@@ -65,10 +65,12 @@ const MusicListContent = (props) => {
                     ))}
                 </Box>
             )}
-            <Pagination
-                count={Math.ceil(musiclist.length / pageSize)}
-                onChange={changeShowList}
-            />
+            {Math.ceil(musiclist.length / pageSize) > 1 && (
+                <Pagination
+                    count={Math.ceil(musiclist.length / pageSize)}
+                    onChange={changeShowList}
+                />
+            )}
         </Box>
     );
 };
