@@ -60,7 +60,7 @@ React Hook、React Router 6、Material UI、React-Redux、Styled-Components
 + 先运行上面的 网易云 api
 + api默认端口 3000,如需改动请在.env文件夹中修改REACT_APP_BASE_API
 
-```lua
+```node
 npm install 
 npm start
 //如果要运行electron
