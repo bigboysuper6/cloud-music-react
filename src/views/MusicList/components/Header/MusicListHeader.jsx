@@ -101,7 +101,7 @@ function MusicListHeader(props) {
                         location.pathname !== "/daysongs"
                             ? playListDetail.coverImgUrl
                             : daySongsState.payload.dailySongs[0].al.picUrl,
-                        { param: "290y290" }
+                        { param: "350y350" }
                     )}
                 ></ImagePlayList>
                 <ContentPlayList>

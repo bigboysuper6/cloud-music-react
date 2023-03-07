@@ -29,7 +29,7 @@ export default function MusicCard({ list }) {
                         <CardMedia
                             component="img"
                             width="100%"
-                            image={limitSize(list.picUrl, { param: "180y180" })}
+                            image={limitSize(list.picUrl, { param: "300y300" })}
                             alt="green iguana"
                         />
                     </CardActionArea>

@@ -1,3 +1,13 @@
+/*
+ * @Author: bigboysuper66 bigboysuper6@gmail.com
+ * @Date: 2023-02-07 17:19:11
+ * @LastEditors: bigboysuper66 bigboysuper6@gmail.com
+ * @LastEditTime: 2023-03-07 23:34:18
+ * @FilePath: /front/cloud-music-app/src/views/MusicList/components/Content/MusicListContent.jsx
+ * @Description:
+ *
+ * Copyright (c) 2023 by bigboysuper6@gmail.com, All Rights Reserved.
+ */
 import React from "react";
 import MusicList from "../../../../components/common/MusicList";
 import { playlistTrackAll } from "../../../../api/palylist";

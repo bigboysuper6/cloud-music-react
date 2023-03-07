@@ -11,7 +11,7 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import Dialogs from "../components/Dialogs";
+import Dialogs from "./Dialogs";
 import request from "../utils/request";
 import { useSelector, useDispatch } from "react-redux";
 import { changeStatus } from "../app/Slices/auth";
@@ -111,7 +111,7 @@ const Nav = () => {
     }
 
     return (
-        <Box zIndex="10" width="976px" margin="auto">
+        <Box zIndex="10">
             <AppBar
                 sx={{
                     height: "50px",

@@ -2,6 +2,9 @@
   "name": "my-webpack-project",
   "version": "1.0.0",
   "private": true,
+  "main": "./public/main.js",
+  "author":"Jaron Chen",
+  "description": "eletron project",
   "dependencies": {
     "@babel/preset-react": "^7.18.6",
     "@emotion/react": "^11.10.5",
@@ -13,6 +16,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.3.2",
+    "electron": "^23.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.5",
@@ -31,7 +35,8 @@
     "build:dev": "webpack --mode=development",
     "build:prod": "webpack --mode=production --node-env=production",
     "watch": "webpack --watch",
-    "serve": "webpack serve"
+    "serve": "webpack serve",
+    "electron": "electron ."
   },
   "eslintConfig": {
     "extends": [
@@ -66,6 +71,5 @@
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1",
     "workbox-webpack-plugin": "^6.5.4"
-  },
-  "description": "My webpack project"
+  }
 }

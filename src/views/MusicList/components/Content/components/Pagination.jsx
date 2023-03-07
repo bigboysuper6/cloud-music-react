@@ -1,3 +1,13 @@
+/*
+ * @Author: bigboysuper66 bigboysuper6@gmail.com
+ * @Date: 2023-02-18 18:34:08
+ * @LastEditors: bigboysuper66 bigboysuper6@gmail.com
+ * @LastEditTime: 2023-03-07 23:29:08
+ * @FilePath: /front/cloud-music-app/src/views/MusicList/components/Content/components/Pagination.jsx
+ * @Description:
+ *
+ * Copyright (c) 2023 by bigboysuper6@gmail.com, All Rights Reserved.
+ */
 import * as React from "react";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";

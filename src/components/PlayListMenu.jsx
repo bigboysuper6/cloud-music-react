@@ -3,7 +3,7 @@ import MusicList from "./common/MusicList";
 import styled from "@emotion/styled";
 const MenuContainer = styled.div`
     position: fixed;
-    width: 976px;
+    width: 100vw;
     height: 84vh;
     left: 50%;
     bottom: 0;
