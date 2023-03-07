@@ -71,9 +71,7 @@ const Banner = (props) => {
                                     width: "100%",
                                     borderRadius: "10px",
                                 }}
-                                src={limitSize(step.imageUrl, {
-                                    param: "900y300",
-                                })}
+                                src={limitSize(step.imageUrl, {})}
                                 alt="轮播图图片"
                             />
                         </div>

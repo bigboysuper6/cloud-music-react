@@ -64,7 +64,7 @@ export default function DayMusicCard(props) {
                             src={limitSize(
                                 props.daySongsState.payload.dailySongs[0].al
                                     .picUrl,
-                                { param: "300y300" }
+                                { param: "400y400" }
                             )}
                             alt="每日推荐歌曲图片"
                         />

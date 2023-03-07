@@ -30,8 +30,8 @@ const Container = styled.div`
     bottom: 0;
     position: fixed;
     min-height: 80px;
-    width: 976px;
     left: 50%;
+    width: 100%;
     transform: translateX(-50%);
     border-radius: 0.625rem 0.625rem 0 0;
     display: flex;
