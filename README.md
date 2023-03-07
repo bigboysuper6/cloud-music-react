@@ -35,6 +35,10 @@ React Hook、React Router 6、Material UI、React-Redux、Styled-Components
 + 添加自定义webpack配置文件(为了学习webpack，可在package.scripts更改启动配置，默认为脚手架自带的webpack配置)
 + 优化一些UI细节
 
+更新(CMR-01-Electron):
++ 添加electron跨端
++ 美化UI
+
 
 未来计划：
 + 播放列表添加删除清空歌曲功能
