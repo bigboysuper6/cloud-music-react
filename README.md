@@ -1,7 +1,7 @@
 # 网易云音乐 网页版
 
 技术:
-React Hook、React Router 6、Material UI、React-Redux、Styled-Components
+React Hook、React Router 6、Material UI、React-Redux、Styled-Components、Electron
 
 感谢[Binaryify](https://github.com/Binaryify)提供的[网易云 api](https://github.com/Binaryify/NeteaseCloudMusicApi)
 
