@@ -1,35 +1,29 @@
 import styled from "@emotion/styled";
 import { Typography } from "@mui/material";
 import { IconButton } from "@mui/material";
-import { ContactSupportOutlined, Favorite, Layers } from "@mui/icons-material";
+import { Favorite, Delete } from "@mui/icons-material";
 import { Link } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import {
     setPlayMusic,
     setMusicIndex,
     setPlayList,
+    removeFromPlayList,
 } from "../../app/Slices/music/index";
-import store from "../../app/store";
 import limitSize from "../../utils/limitSize";
 import hiddenText from "../../utils/hiddenText";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 const Container = styled.div`
     width: inherit;
     border-radius: 0.625rem;
-    min-height: ${(props) => {
-        console.log("hiddenImage", props.hiddenImage);
-        return props.hiddenImage ? "50px" : "80px";
-    }};
+    min-height: ${(props) => props.hiddenImage ? "50px" : "80px"};
     display: flex;
     justify-content: space-between;
     &:hover {
         background-color: rgb(60, 60, 60);
     }
-    background-color: ${(props) => {
-        return props.select ? "rgb(60, 60, 60)" : "";
-    }};
+    background-color: ${(props) => props.select ? "rgb(60, 60, 60)" : ""};
 `;
 
 const ContainerLeft = styled.div`
@@ -47,9 +41,7 @@ const ImageMusic = styled.img`
 `;
 
 const MusicInformation = styled.div`
-    margin: ${(props) => {
-        return props.hiddenImage ? "0 0 0 1rem" : "0";
-    }};
+    margin: ${(props) => props.hiddenImage ? "0 0 0 1rem" : "0"};
 `;
 
 const ContainerMid = styled.div`
@@ -68,9 +60,11 @@ const ContainerEnd = styled.div`
 const MusicList = (props) => {
     const songlist = useSelector((state) => state.music.value.musicList);
     const thePlayMusic = useSelector((state) => state.music.value.playMusic);
-
-    // change playmusic background
+    const dispatch = useDispatch();
+    
     const [selectMusic, setSelectMusic] = useState(false);
+    const hiddenImage = props.hiddenImage === true;
+    
     useEffect(() => {
         if (thePlayMusic?.payload?.id === props.songslist.id) {
             setSelectMusic(true);
@@ -79,8 +73,6 @@ const MusicList = (props) => {
         }
     }, [thePlayMusic?.payload?.id, props.songslist.id]);
 
-    const dispatch = useDispatch();
-    const hiddenImage = props.hiddenImage === true;
     const timeChange = () => {
         let time = props.songslist.dt;
         let minutes = parseInt(time / (60 * 1000));
@@ -94,6 +86,7 @@ const MusicList = (props) => {
         let time_ms = minutes + ":" + seconds;
         return time_ms;
     };
+
     function playMusic() {
         const MusicData = {
             picUrl: props.songslist.al.picUrl,
@@ -106,6 +99,11 @@ const MusicList = (props) => {
         dispatch(setPlayList(songlist));
         dispatch(setMusicIndex(index));
     }
+
+    const handleDelete = (e) => {
+        e.stopPropagation();
+        dispatch(removeFromPlayList(props.index));
+    };
 
     return (
         <Container
@@ -191,7 +189,12 @@ const MusicList = (props) => {
             <ContainerEnd>
                 {!hiddenImage && (
                     <IconButton color="secondary" aria-label="add an alarm">
-                        <Favorite></Favorite>
+                        <Favorite />
+                    </IconButton>
+                )}
+                {props.showDelete && (
+                    <IconButton color="error" onClick={handleDelete}>
+                        <Delete />
                     </IconButton>
                 )}
                 <Typography

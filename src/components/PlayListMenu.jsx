@@ -1,6 +1,10 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import MusicList from "./common/MusicList";
 import styled from "@emotion/styled";
+import { Button } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { clearPlayList } from "../app/Slices/music";
+
 const MenuContainer = styled.div`
     position: fixed;
     width: 100vw;
@@ -15,12 +19,26 @@ const MenuContainer = styled.div`
     z-index: 0;
 `;
 
+const HeaderContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    position: sticky;
+    top: 0;
+    background: rgb(45, 45, 45);
+    z-index: 1;
+`;
+
 const PlayListMenu = ({ showState }) => {
+    const dispatch = useDispatch();
     const playList = useSelector(
         (state) => state.music.value.playList?.payload?.payload
     );
 
-    console.log("playList:", playList);
+    const handleClearPlaylist = () => {
+        dispatch(clearPlayList());
+    };
 
     return (
         <MenuContainer
@@ -30,27 +48,30 @@ const PlayListMenu = ({ showState }) => {
                     : { transform: "translate(-50%,100%)" }
             }
         >
-            <div
-                style={{
-                    fontSize: "1.5rem",
-                    position: "sticky",
-                    textAlign: "left",
-                    padding: "1rem 1rem",
-                }}
-            >
-                当前播放
-            </div>
-            <div
-                style={{
-                    fontSize: "0.8rem",
-                    color: "rgb(81,81,81",
-                    textAlign: "left",
-                    padding: "0 1.1rem",
-                    marginBottom: "0.5rem",
-                }}
-            >
-                共{playList?.length}首
-            </div>
+            <HeaderContainer>
+                <div>
+                    <div style={{ fontSize: "1.5rem" }}>当前播放</div>
+                    <div
+                        style={{
+                            fontSize: "0.8rem",
+                            color: "rgb(81,81,81)",
+                            marginTop: "0.5rem",
+                            marginBottom: "0.5rem",
+                        }}
+                    >
+                        共{playList?.length || 0}首
+                    </div>
+                </div>
+                <Button
+                    variant="contained"
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                    onClick={handleClearPlaylist}
+                    disabled={!playList?.length}
+                >
+                    清空
+                </Button>
+            </HeaderContainer>
             {playList && (
                 <div>
                     {playList.map((item, index) => (
@@ -59,6 +80,7 @@ const PlayListMenu = ({ showState }) => {
                             key={index}
                             songslist={item}
                             index={index}
+                            showDelete={true}
                         />
                     ))}
                 </div>
